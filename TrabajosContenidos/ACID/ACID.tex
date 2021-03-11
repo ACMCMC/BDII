@@ -1,0 +1,98 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[spanish]{babel}
+\usepackage{listings}
+\usepackage[utf8]{inputenc}
+\usepackage{titling}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{url}
+
+\usepackage{etoolbox}
+\patchcmd{\thebibliography}{\section*{\refname}}{}{}{}
+
+%%search -> (?:url=\{)(.*)(:?\})
+%%replace -> howpublished={\\url{$1}}
+\geometry{a4paper, left=4em, right=4em, top=0em, bottom=4em}
+
+\lstset{
+    frame=single,
+    breaklines=true,
+    numbers=left,
+    keywordstyle=\color{blue},
+    numbersep=15pt,
+    numberstyle=,
+    basicstyle=\linespread{1.5}\selectfont\ttfamily,
+    commentstyle=\color{gray},
+    stringstyle=\color{orange},
+    identifierstyle=\color{green!40!black},
+}
+
+\setlength{\parindent}{4em}
+%%\setlength{\parindent}{0em}
+\setlength{\parskip}{0.8em}
+    
+%%\renewcommand{\familydefault}{phv} %%Seleccionamos Helvetica
+    
+\lstdefinestyle{console}
+{
+    numbers=left,
+    backgroundcolor=\color{violet},
+    %%belowcaptionskip=1\baselineskip,
+    breaklines=true,
+    %%xleftmargin=\parindent,
+    %%showstringspaces=false,
+    basicstyle=\footnotesize\ttfamily,
+    %%keywordstyle=\bfseries\color{green!40!black},
+    %%commentstyle=\itshape\color{green},
+    %%identifierstyle=\color{blue},
+    %%stringstyle=\color{orange},
+    basicstyle=\scriptsize\color{white}\ttfamily,
+}
+    
+\title{\fontsize{15pt}{0} ACID \vspace{-2ex}}
+\date{\vspace{-5ex}}
+
+\bibliographystyle{plain}
+    
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\vspace{-10ex}
+
+Una \textbf{transacción}, en SQL, es un conjunto de instrucciones que tienen un propósito definido, y por tanto, se entienden como una unidad conjunta de trabajo sobre la base de datos.
+
+Por ejemplo, en una base de datos de un centro comercial, la transacción \textit{vender el artículo A al consumidor C}, es una unidad única de trabajo que, muy probablemente, estará formada al menos por las sentencias encargadas de eliminar A del conjunto de artículos disponibles para venta, y registrar que C ha comprado A (además de otras posibles).
+
+A partir del propio concepto de transacción, es intuitivo que, en una base de datos sólida, se deberían cumplir una serie de objetivos o requisitos funcionales:
+
+\begin{itemize}
+    \item \textbf{La transacción debería ejecutarse completamente, o, en caso de fallar, debería no producir modificaciones en la base de datos.} En ningún caso debería realizarse ``a medias''. En el ejemplo, jamás debería darse el caso de que se elimine A del conjunto de artículos disponibles para venta, pero no se registre su venta a C. Es deseable que la transacción tenga éxito, pero en caso de fallar, la opción ``menos mala'' es que no se modifique la base de datos en absoluto.
+    
+    Esta idea se llama \textbf{atomicidad}: las transacciones, o se ejecutan correctamente, o dejan intacta la base de datos, como si nunca se hubieran ejecutado.
+
+    \item \textbf{La transacción debería producir el efecto deseado.} Por ejemplo, sería inadecuado que la transacción simplemente registrase que se ha vendido A a C, pero no eliminase A del conjunto de artículos a la venta. Esto depende del programador de las transacciones, ya que un sistema gestor de bases de datos no sabe cuál es la lógica de negocio, y por tanto, no puede manejar esta cuestión por sí mismo. Pese a todo como se indica en \cite{RefWorks:doc:6049e6458f08a1274936fc32}, sí nos puede ayudar con herramientas como las restricciones de integridad.
+    
+    A esto lo llamamos \textbf{consistencia}: la instancia de la base de datos después de ejecutar la transacción debe ser válida (coherente con la instancia previa a la transacción).
+
+    \item \textbf{La transacción debería trabajar de forma aislada.} Es decir, a la transacción no debería afectarle que otras transacciones se estén ejecutando al mismo tiempo sobre la base de datos. Por ejemplo, no sería adecuado que dos transacciones vendieran el mismo artículo al mismo tiempo. Una de ellas debería ver que el artículo no está vendido, y la otra debería observar la instancia resultante de la primera transacción (y, por tanto, no poder realizar la venta).
+    
+    Este concepto es el de \textbf{aislamiento} (\textit{isolation}): la transacción debe percibir que ninguna otra transacción está accediendo a la base de datos a la vez.
+
+    \item \textbf{La transacción, una vez ejecutada, debería ser permanente.} Sería un fallo que se vendiese el artículo, pero la venta desapareciese de la base de datos posteriormente.
+    
+    En este caso, hablamos de \textbf{durabilidad}: los cambios deben permanecer.
+\end{itemize}
+
+En conjunto, estas cuatro propiedades se conocen con el acrónimo \textbf{ACID}. Una base de datos sólida debe asegurarse de que se cumplen las cuatro, y en ello juega un papel muy relevante la elección del sistema gestor de bases de datos, pero también el uso que hace el programador del mismo, especialmente en el caso de la consistencia.
+
+\bibliography{export}
+
+\end{document}

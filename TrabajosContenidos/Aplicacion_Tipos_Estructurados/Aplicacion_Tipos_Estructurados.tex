@@ -1,0 +1,136 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[spanish]{babel}
+\usepackage{listings}
+\usepackage[utf8]{inputenc}
+\usepackage{titling}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{fix-cm}
+\usepackage{tikz}
+
+\usepackage{etoolbox}
+\patchcmd{\thebibliography}{\section*{\refname}}{}{}{}
+
+%%search -> (?:url=\{)(.*)(:?\})
+%%replace -> howpublished={\\url{$1}}
+\geometry{a4paper, left=4em, right=4em, top=0em, bottom=4em}
+
+\lstset{
+    frame=single,
+    breaklines=true,
+    numbers=left,
+    keywordstyle=\color{blue},
+    numbersep=15pt,
+    numberstyle=,
+    basicstyle=\linespread{1.0}\selectfont\ttfamily,
+    commentstyle=\color{gray},
+    stringstyle=\color{orange},
+    identifierstyle=\color{green!40!black},
+}
+
+\setlength{\parindent}{4em}
+%%\setlength{\parindent}{0em}
+\setlength{\parskip}{0.8em}
+    
+%%\renewcommand{\familydefault}{phv} %%Seleccionamos Helvetica
+    
+\lstdefinestyle{console}
+{
+    numbers=left,
+    backgroundcolor=\color{violet},
+    %%belowcaptionskip=1\baselineskip,
+    breaklines=true,
+    %%xleftmargin=\parindent,
+    %%showstringspaces=false,
+    basicstyle=\footnotesize\ttfamily,
+    %%keywordstyle=\bfseries\color{green!40!black},
+    %%commentstyle=\itshape\color{green},
+    %%identifierstyle=\color{blue},
+    %%stringstyle=\color{orange},
+    basicstyle=\scriptsize\color{white}\ttfamily,
+}
+
+\newcommand{\SQLObligatorio}[1]{\textcolor{blue}{\textbf{#1}}}
+
+\newcommand{\size}[2]{{\fontsize{#1}{0}\selectfont#2}}
+    
+\title{\size{15pt}{Aplicación de tipos de datos estucturados en SQL} \vspace{-2ex}}
+\date{\vspace{-5ex}}
+%\author{\size{15pt}{Aldán Creo Mariño} \vspace{-5ex}}
+
+\bibliographystyle{plain}
+    
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\vspace{-10ex}
+
+En este documento, veremos un ejemplo de \textbf{cómo crear un tipo de datos estucturado en SQL}, a partir de su estándar de 1999. Vamos a partir del ejemplo de la clase \texttt{Usuario} del primer proyecto de la asignatura (la biblioteca), que en Java se definía como (he modificado el ejemplo para que sea más ilustrativo en la explicación):
+
+\begin{center}
+    \begin{minipage}[c]{0,7\textwidth}
+\begin{lstlisting}[language=Java]
+class Usuario {
+    private String idUsuario;
+    private String clave;
+    private String nombre;
+    private String direccion;
+    private String email;
+    private TipoUsuario tipo;
+    public String getClaveEncriptada() {
+        return Encriptador.encriptar(clave);
+    } }
+\end{lstlisting}
+\end{minipage}
+\end{center}
+
+En SQL, podemos crear un tipo de datos estructurado similar usando la siguiente sintaxis:
+
+\begin{center}
+    \begin{minipage}[c]{0,7\textwidth}
+\begin{lstlisting}[language=SQL]
+CREATE TYPE Usuario AS (idUsuario text, clave text, nombre text, direccion text, email text, tipo TipoUsuario) FINAL
+METHOD getClaveEncriptada() RETURNS text;
+CREATE INSTANCE METHOD getClaveEncriptada() RETURNS text FOR Usuario BEGIN
+    RETURN crypt(self.clave, gen_salt('algoritmo')); END;
+\end{lstlisting}
+    \end{minipage}
+\end{center}
+
+De esta forma, la creación de una tabla de usuarios se reduciría a:
+
+\begin{center}
+    \begin{minipage}[c]{0,7\textwidth}
+\begin{lstlisting}[language=SQL]
+CREATE TABLE usuarios AS (u Usuario);
+\end{lstlisting}
+    \end{minipage}
+\end{center}
+
+Y una consulta del nombre y la clave encriptada del usuario con un \texttt{idUsuario} concreto:
+
+\begin{center}
+    \begin{minipage}[c]{0,7\textwidth}
+\begin{lstlisting}[language=SQL]
+SELECT u.nombre, getClaveEncriptada() FROM usuarios WHERE u.idUsuario='id';
+\end{lstlisting}
+    \end{minipage}
+\end{center}
+
+Como se puede apreciar, la correspondencia entre la representación en lenguaje SQL y en lenguaje Java de la clase \texttt{Usuario} es considerablemente alta. Esto permite a los programadores del paradigma orientado a objetos realizar diseños más naturales, y que se integran más próximamente con las aplicaciones cliente.
+
+Existen más opciones para la sintaxis que no tengo espacio para cubrir en este documento breve, así que recomiendo recurrir a la bibliografía para complementar esta explicación.
+
+\nocite{*}
+\bibliography{export}
+
+\end{document}

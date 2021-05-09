@@ -1,0 +1,94 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[spanish]{babel}
+\usepackage{listings}
+\usepackage[utf8]{inputenc}
+\usepackage{titling}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{url}
+
+\usepackage{etoolbox}
+\patchcmd{\thebibliography}{\section*{\refname}}{}{}{}
+
+%%search -> (?:url=\{)(.*)(:?\})
+%%replace -> howpublished={\\url{$1}}
+\geometry{a4paper, left=4em, right=4em, top=0em, bottom=4em}
+
+\lstset{
+    frame=single,
+    breaklines=true,
+    numbers=left,
+    keywordstyle=\color{blue},
+    numbersep=15pt,
+    numberstyle=,
+    basicstyle=\linespread{1.5}\selectfont\ttfamily,
+    commentstyle=\color{gray},
+    stringstyle=\color{orange},
+    identifierstyle=\color{green!40!black},
+}
+
+\setlength{\parindent}{4em}
+%%\setlength{\parindent}{0em}
+\setlength{\parskip}{0.8em}
+    
+%%\renewcommand{\familydefault}{phv} %%Seleccionamos Helvetica
+    
+\lstdefinestyle{console}
+{
+    numbers=left,
+    backgroundcolor=\color{violet},
+    %%belowcaptionskip=1\baselineskip,
+    breaklines=true,
+    %%xleftmargin=\parindent,
+    %%showstringspaces=false,
+    basicstyle=\footnotesize\ttfamily,
+    %%keywordstyle=\bfseries\color{green!40!black},
+    %%commentstyle=\itshape\color{green},
+    %%identifierstyle=\color{blue},
+    %%stringstyle=\color{orange},
+    basicstyle=\scriptsize\color{white}\ttfamily,
+}
+    
+\title{\fontsize{15pt}{0} Bases de datos orientadas a objetos \vspace{-2ex}}
+\date{\vspace{-5ex}}
+\author{\fontsize{15pt}{0} \vspace{-5ex} Aldán Creo Mariño}
+
+\bibliographystyle{plain}
+    
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\vspace{-5ex}
+
+Las bases de datos orientadas a objetos surgieron como evolución de las bases de datos tradicionales, que se quedaban ``cortas'' a la hora de satisfacer las necesidades de los programadores modernos.
+
+Las bases de datos tradicionales trabajan con un conjunto de tipos de datos muy restringido (\texttt{integer, double precision, varchar}, etc.). Esto se contrapone a la riqueza de la que disponemos hoy en día con lenjuages orientados a objetos, como Java o C++. Este tipo de lenguajes nos permiten crear nuestros propios tipos de datos, y operar con ellos a través del envío de mensajes. Las bases de datos relacionales estándar carecen de la capacidad de representar este tipo de datos, ya que solo incluyen los primitivos ya comentados. Por ejemplo, en Java, un objeto puede contener una lista de otros objetos, heredar características de su padre, etcétera. Las bases de datos orientadas a objetos entran en juego para intentar buscar formas de lidiar con esta clase de dificultades.
+
+Otro problema que buscan resolver las bases de datos orientadas a objetos es el de la comunicación entre la propia base de datos y los clientes que obtienen información desde aplicaciones escritas en lenguajes orientados a objetos. Por mucho que tengamos un SQL extendido que soporte la definición de objetos, no tenemos garantizada la correspondencia de tipos entre la base de datos y el lenguaje cliente. Por ejemplo, un lenguaje $A$ no tiene por qué disponer del mismo tipo de objetos que otro lenguaje $B$. Dada esta falta de uniformidad, es necesario definir algún tipo de estrategia para relacionar la base de datos con los lenguajes que acceden a ella.
+
+Frente a los problemas descritos, existen dos enfoques principales para resolverlos:
+
+\begin{itemize}
+
+    \item Una respuesta al problema es la más lógica: usar una base de datos que soporte el \textbf{modelo de datos objeto-relacional}. Este modelo proporciona al desarrollador un conjunto más rico de herramientas para desarrollar el modelo de su base de datos, notablemente permitiendo la definición de objetos de forma nativa, y le permite, por tanto, integrarlo de forma más directa dentro del resto de la lógica de negocio. En principio parece una solución limpia y segura, pero en la práctica su uso es limitado debido a la poca disponibilidad y a la falta de estandarización de este tipo de bases de datos, sin tener en cuenta posibles problemas que surjan a la hora de su implementación práctica.
+    
+    El modelo de datos objeto-relacional suele partir del SQL clásico, extendiéndolo para soportar definiciones de objetos sin romper la continuidad con el paradigma declarativo que siempre ha mantenido SQL.
+    
+    \item La otra posible respuesta a este problema es lo que se conoce como \textbf{ORM} (\textit{object-relational mapping}). Se trata de una técnica, plasmada de formas diversas en cada lenguaje, cuya idea principal es la de permitir al programador definir del lado del código a qué se corresponden los atributos de los objetos en la base de datos, y dejar de mano del sistema encargado de gestionar el mapeo a la base de datos, la representación concreta de las relaciones que especifica el desarrollador. Al final, serán traducidas a una representación en el modelo relacional.
+    
+\end{itemize}
+
+Como idea general, no existe un criterio exacto para determinar qué enfoque es mejor en general, y deberá ser analizado de forma concreta para cada caso de uso.
+
+\nocite{*}
+\bibliography{export}
+
+\end{document}

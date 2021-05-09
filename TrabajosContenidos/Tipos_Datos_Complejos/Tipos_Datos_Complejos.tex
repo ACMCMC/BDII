@@ -1,0 +1,89 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[spanish]{babel}
+\usepackage{listings}
+\usepackage[utf8]{inputenc}
+\usepackage{titling}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{fix-cm}
+
+\usepackage{etoolbox}
+\patchcmd{\thebibliography}{\section*{\refname}}{}{}{}
+
+%%search -> (?:url=\{)(.*)(:?\})
+%%replace -> howpublished={\\url{$1}}
+\geometry{a4paper, left=4em, right=4em, top=0em, bottom=4em}
+
+\lstset{
+    frame=single,
+    breaklines=true,
+    numbers=left,
+    keywordstyle=\color{blue},
+    numbersep=15pt,
+    numberstyle=,
+    basicstyle=\linespread{1.5}\selectfont\ttfamily,
+    commentstyle=\color{gray},
+    stringstyle=\color{orange},
+    identifierstyle=\color{green!40!black},
+}
+
+\setlength{\parindent}{4em}
+%%\setlength{\parindent}{0em}
+\setlength{\parskip}{0.8em}
+    
+%%\renewcommand{\familydefault}{phv} %%Seleccionamos Helvetica
+    
+\lstdefinestyle{console}
+{
+    numbers=left,
+    backgroundcolor=\color{violet},
+    %%belowcaptionskip=1\baselineskip,
+    breaklines=true,
+    %%xleftmargin=\parindent,
+    %%showstringspaces=false,
+    basicstyle=\footnotesize\ttfamily,
+    %%keywordstyle=\bfseries\color{green!40!black},
+    %%commentstyle=\itshape\color{green},
+    %%identifierstyle=\color{blue},
+    %%stringstyle=\color{orange},
+    basicstyle=\scriptsize\color{white}\ttfamily,
+}
+
+\newcommand{\size}[2]{{\fontsize{#1}{0}\selectfont#2}}
+    
+\title{\size{15pt}{Tipos de datos complejos} \vspace{-2ex}}
+\date{\vspace{-5ex}}
+\author{\size{12pt}{Aldán Creo Mariño} \vspace{-5ex}}
+
+\bibliographystyle{plain}
+    
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\vspace{-5ex}
+
+Los tipos de datos en una base de datos tradicional son tipos de datos atómicos (es decir, están en primera forma normal). Vamos a analizar por qué existe la necesidad de tener nuevos tipos de datos: \textbf{tipos de datos complejos}.
+
+Si pensamos en el ejemplo del primero de los proyectos de la asignatura (el de la biblioteca), podemos ver que en Java existen una serie de clases como la de \texttt{Ejemplar}, que tienen relación con otras clases. Por ejemplo, en este caso, cada uno llevaría emparejado un \texttt{Libro}. No llevaría emparejado un \texttt{idLibro}, sino un objeto en sí. Esta es una diferencia importante. En Java tenemos objetos que se referencian entre sí, mientras que en la base de datos la información se representa, como mínimo, en primera forma normal, lo cual nos impide representar este tipo de relaciones directamente (para recuperar la información es necesario juntar tablas o tratar los datos de algún modo). Sería deseable poder disponer de una forma de representar este tipo de relaciones directamente.
+
+Otro tipo de diferencia entre la representación en Java de la lógica de negocio y la representación a nivel de la base de datos sería el caso de \texttt{Usuario}. En este caso, la clase encapsula información sobre el usuario (\texttt{idUsuario, clave, nombre, direccion, email, tipo}). Cuando queremos recuperar información de los libros de un usuario, por ejemplo, resultaría más intuitivo poder indicarle a la base de datos que queremos ``recuperar los libros del usuario $U$''. Esto, tal como está construida en este momento la base de datos, no es posible (hay que indicar el \texttt{id} del usuario, no hay forma de pasarle al usuario en sí para hacer la consulta).
+
+Otro problema sería el concepto de la identidad. Pensemos en lo que sucedería cuando pretendemos cambiar el \texttt{id} de un usuario. En Java, no tendría por qué suponer un problema en principio, ya que siempre que nos encarguemos de actualizar las referencias a la identidad del objeto (su \texttt{hashCode} sería un ejemplo, que se usa para ciertas estructuras de datos integradas en el lenguaje), el objeto no presentaría problemas de mutabilidad. Pese a todo, a nivel de la base de datos, cambiar el \texttt{id} de un usuario podría suponer problemas si tenemos mal definidas las políticas de integridad referencial. Si usásemos el concepto de objeto con una definición adecuada de la identidad del mismo, no podríamos sufrir este problema, ya que el objeto sigue siendo el mismo. Sólo se ha producido un cambio en su \texttt{id}, que no es más que un atributo del objeto en sí.
+
+En general, la conclusión que podemos derivar de lo expuesto es que el sistema de tipos de las bases de datos tradicionales resulta incompleto a la hora de expresar ciertos tipos de relaciones y estructuras que son naturales en los lenguajes de programación orientados a objetos, e incluso en el mundo físico, pudiendo dar lugar a representaciones subóptimas de la información.
+
+Por eso se han desarrollado extensiones a SQL, ahora parte del estándar, que innovan en el sistema de tipos para permitirnos definir datos de estos tipos. Pese a todo, es conveniente ser conscientes de que la posibilidad de recurrir a tipos de datos complejos no implica que sea necesario. Seguirán existiendo casos en los que usar representaciones en primera forma normal sea más adecuado. Por ejemplo, en casos de relaciones de varios a varios. Si mantuviésemos referencias al otro lado de la relación recíprocamente, podría dar lugar a inconsistencias en los datos muy fácilmente. La representación clásica podría ser más adecuada en este tipo de situaciones, entre otros posibles casos. Es necesario evaluar cada situación pormenorizadamente.
+
+\nocite{*}
+\bibliography{export}
+
+\end{document}

@@ -1,0 +1,115 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[spanish]{babel}
+\usepackage{listings}
+\usepackage[utf8]{inputenc}
+\usepackage{titling}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{fix-cm}
+\usepackage{tikz}
+
+\usepackage{etoolbox}
+\patchcmd{\thebibliography}{\section*{\refname}}{}{}{}
+
+%%search -> (?:url=\{)(.*)(:?\})
+%%replace -> howpublished={\\url{$1}}
+\geometry{a4paper, left=4em, right=4em, top=0em, bottom=4em}
+
+\lstset{
+    frame=single,
+    breaklines=true,
+    numbers=left,
+    keywordstyle=\color{blue},
+    numbersep=15pt,
+    numberstyle=,
+    basicstyle=\linespread{1.0}\selectfont\ttfamily,
+    commentstyle=\color{gray},
+    stringstyle=\color{orange},
+    identifierstyle=\color{green!40!black},
+}
+
+\setlength{\parindent}{4em}
+%%\setlength{\parindent}{0em}
+\setlength{\parskip}{0.8em}
+    
+%%\renewcommand{\familydefault}{phv} %%Seleccionamos Helvetica
+    
+\lstdefinestyle{console}
+{
+    numbers=left,
+    backgroundcolor=\color{violet},
+    %%belowcaptionskip=1\baselineskip,
+    breaklines=true,
+    %%xleftmargin=\parindent,
+    %%showstringspaces=false,
+    basicstyle=\footnotesize\ttfamily,
+    %%keywordstyle=\bfseries\color{green!40!black},
+    %%commentstyle=\itshape\color{green},
+    %%identifierstyle=\color{blue},
+    %%stringstyle=\color{orange},
+    basicstyle=\scriptsize\color{white}\ttfamily,
+}
+
+\newcommand{\SQLObligatorio}[1]{\textcolor{blue}{\textbf{#1}}}
+
+\newcommand{\size}[2]{{\fontsize{#1}{0}\selectfont#2}}
+    
+\title{\size{15pt}{Vistas, vistas desde un punto de vista práctico} \vspace{-2ex}}
+\date{\vspace{-5ex}}
+%\author{\size{15pt}{Aldán Creo Mariño} \vspace{-5ex}}
+
+\bibliographystyle{plain}
+    
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\vspace{-10ex}
+
+En este documento, veremos brevemente qué es una \textbf{vista} (\texttt{view}) en SQL, cómo se crea, y cuáles son su principales usos.
+
+Técnicamente hablando, una vista es una relación virtual, definida a través de una consulta SQL. En una base de datos, no se guarda de forma persistente, sino que se computa ``al vuelo'' en el momento de hacer referencia a la misma.
+
+En SQL, podemos crear una vista usando la siguiente sintaxis:
+
+\begin{center}
+\begin{minipage}[c]{0,7\textwidth}
+\begin{lstlisting}[language=SQL]
+CREATE VIEW miVista AS definicionVista;
+\end{lstlisting}
+(\textit{Donde \texttt{definicionVista} es una consulta SQL}).
+\end{minipage}
+\end{center}
+
+%Las vistas se pueden usar como cualquier otro tipo de relación estándar en SQL, ya que, semánticamente hablando, son equivalentes. Es decir, son como una especie de tablas ``creadas al vuelo''. Por ejemplo:
+
+%\begin{center}
+%\begin{minipage}[c]{0,7\textwidth}
+%\begin{lstlisting}[language=SQL]
+%SELECT * FROM vistaUsuarios WHERE nombre='Ana';
+%\end{lstlisting}
+%\end{minipage}
+%\end{center}
+
+Es importante destacar que las vistas se utilizan fundamentalmente para consultar información, y no para actualizarla. En el libro de referencia figuran ejemplos de problemas que se pueden encontrar si intentamos actualizar datos a través de una vista, y no voy a entrar en ellos por falta de espacio. La mayoría de sistemas de bases de datos prohíben las actualizaciones usando vistas.
+
+Voy a comentar ahora las principales ventajas de las vistas. La primera es que se evita que haya que reescribir el código de la consulta por cada vez que se quiera hacer referencia a la misma relación (construida a través de una consulta SQL). Es especialmente útil cuando la consulta tiene una cierta complejidad (joins, selects anidados, etc.). Además, si en algún momento, por el motivo que sea, la consulta debiera cambiar, sería suficiente con modificar la definición de la vista, y no haría falta cambiar todos los lugares donde hacemos esa consulta.
+
+Otra de las ventajas relevantes de las vistas es la de los atributos derivados. Una vista, ya que funciona como una relación generada a partir de una consulta SQL, es una forma idónea de implementar en la base de datos el concepto de atributos derivados, que no se deben almacenar en la propia base de datos. Por ejemplo, si en la base de datos de la biblioteca (el primer proyecto de la asignatura), quisiéramos obtener una relación donde se indicasen los préstamos de un usuario, junto con su fecha de vencimiento, sería muy sencillo, ya que sería coger las tuplas que existían en la relación de préstamos, y sumarles 15 días a su fecha de préstamo, que sería la fecha de devolución. De esta forma, evitamos guardar la fecha de devolución en la base de datos, que es redundante al ser un atributo derivado.
+
+Finalmente, la última de las ventajas que es interesante comentar es la posibilidad que ofrecen a la hora de restringir el acceso. Usando vistas, podría permitírsele a un usuario acceder únicamente a un subconjunto de los datos almacenados en una o varias relaciones de la base de datos, sin que pueda llegar a acceder, al menos a través de la vista, al modelo que existe por detrás y que se usa para generar la vista. Por tanto, permite mejoras en la seguridad de los datos almacenados.
+
+Finalmente, es relevante comentar la existencia de vistas materializadas (\texttt{materialized views}). Básicamente, su diferencia fundamental, es que éstas sí se persisten en la base de datos, por lo que es necesario establecer mecanismos para garantizar que su información se mantiene actualizada. La ventaja que proporcionan es la reducción del tiempo de consulta, ya que no es necesario estar recalculándolas constantemente, especialmente si la mayoría de operaciones en la base de datos son de consulta, y no de actualización.
+
+\nocite{*}
+\bibliography{export}
+
+\end{document}

@@ -1,0 +1,94 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[spanish]{babel}
+\usepackage{listings}
+\usepackage[utf8]{inputenc}
+\usepackage{titling}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{fix-cm}
+\usepackage{tikz}
+
+\usepackage{etoolbox}
+\patchcmd{\thebibliography}{\section*{\refname}}{}{}{}
+
+%%search -> (?:url=\{)(.*)(:?\})
+%%replace -> howpublished={\\url{$1}}
+\geometry{a4paper, left=4em, right=4em, top=0em, bottom=4em}
+
+\lstset{
+    frame=single,
+    breaklines=true,
+    numbers=left,
+    keywordstyle=\color{blue},
+    numbersep=15pt,
+    numberstyle=,
+    basicstyle=\linespread{1.0}\selectfont\ttfamily,
+    commentstyle=\color{gray},
+    stringstyle=\color{orange},
+    identifierstyle=\color{green!40!black},
+}
+
+\setlength{\parindent}{4em}
+%%\setlength{\parindent}{0em}
+\setlength{\parskip}{0.8em}
+    
+%%\renewcommand{\familydefault}{phv} %%Seleccionamos Helvetica
+    
+\lstdefinestyle{console}
+{
+    numbers=left,
+    backgroundcolor=\color{violet},
+    %%belowcaptionskip=1\baselineskip,
+    breaklines=true,
+    %%xleftmargin=\parindent,
+    %%showstringspaces=false,
+    basicstyle=\footnotesize\ttfamily,
+    %%keywordstyle=\bfseries\color{green!40!black},
+    %%commentstyle=\itshape\color{green},
+    %%identifierstyle=\color{blue},
+    %%stringstyle=\color{orange},
+    basicstyle=\scriptsize\color{white}\ttfamily,
+}
+
+\newcommand{\SQLObligatorio}[1]{\textcolor{blue}{\textbf{#1}}}
+
+\newcommand{\size}[2]{{\fontsize{#1}{0}\selectfont#2}}
+    
+\title{\size{15pt}{Comparativa de tipos de sistemas de bases de datos} \vspace{-2ex}}
+\date{\vspace{-5ex}}
+%\author{\size{15pt}{Aldán Creo Mariño} \vspace{-5ex}}
+
+\bibliographystyle{plain}
+    
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\vspace{-10ex}
+
+En este documento, intentaré ofrecer una visión general de los distintos tipos de sistemas de bases de datos que existen y compararlos para tener una idea más práctica de cuáles son las ventajas y desventajas de cada tipo.
+
+Los \textbf{sistemas relacionales} ofrecen dos ventajas clave: en primer lugar, que los tipos de datos que manejan son sencillos. En segundo lugar, que el lenguaje SQL está basado en álgebra relacional. El álgebra relacional, como hemos estudiado en Bases de Datos I, tiene una fuerte base matemática, y por lo tanto, es muy potente y además tenemos una garantía de que funciona correctamente. Además, tenemos las ventajas de una elevada protección de los datos, en parte gracias a la posibilidad de incorporar restricciones al esquema, y de establecer políticas de control de acceso.
+
+Las \textbf{bases de datos orientadas a objetos}, son muy adecuadas en la teoría, pero plantean un problema en la práctica. Siempre que se extienda SQL, manteniendo la potencia del lenguaje, es una opción bastante adecuada, pero el problema es que se pierde la base matemática que ofrece SQL, y por tanto renunciamos a todas las ventajas que ya hemos visto.
+
+Además, existen otro tipo de bases de datos, que se llaman \textbf{bases de datos objeto-relacionales}. Detrás, está la propia base de datos relacional, pero es precisamente la propia base de datos la que ofrece una capa donde al programador se le da la visión de que realmente está manejando una base de datos orientada a objetos. Se trata simplemente de una abstracción que ofrecen algunos sistemas, como PostgreSQL, que permiten trabajar con el concepto de tipos de datos estructurados, al mismo tiempo que por detrás mantienen un modelo relacional clásico. Se trata de una solución de compromiso entre ambos enfoques.
+
+Adicionalmente, están los lenguajes a los que se les añade una \textbf{capa de persistencia}. La idea es tener un lenguaje de programación o (es decir, una parte no persistente), donde los objetos existen temporalmente. Por ejemplo, sería el caso de una aplicación Java. El problema que se tiene es que los datos no persisten, y precisamente por eso, es necesario que los guardemos de algún modo (en una base de datos sería el ejemplo más adecuado). Es decir, la base de datos lo que hace es aportar una capa de persistencia, ya que esa es precisamente su naturaleza y su razón de ser. Por tanto, la idea es añadir a los lenguajes una serie de funciones de persistencia, de forma que se pueda saber cuándo se está manipulando un objeto de forma no persistente en el lenguaje de programación (para hacer operaciones), y cuándo se está modificando ese mismo objeto de forma persistente (almacenando los valores en la base de datos).
+
+Finalmente, el sistema más utilizado, aunque también el considerado por lo general menos eficiente, es lo que denominamos \textbf{ORM} (\textit{Object-Relational Mapping}). Es ampliamente utilizado porque tiene las ventajas del mundo de las bases de datos relacionales, pero al mismo tiempo permite obtener las ventajas de trabajar con el paradigma orientado a objetos. Se establece una capa intermedia que relaciona base de datos y aplicación cliente. Gracias al mapeado, cada dato en el lenguaje no persistente, se corresponde con un dato de la base de datos. Por tanto, se propagan los cambios del lado del lenguaje cliente a la propia base de datos, y éste es el mecanismo que aporta persistencia.
+
+En general, lo que podemos concluir es que cada tipo de enfoque tiene sus propias ventajas y desventajas, y que no existe un claro ganador. Para cada situación, conviene evaluar las necesidades de uso para poder elegir el tipo de sistema más adecuado.
+
+\nocite{*}
+\bibliography{export}
+
+\end{document}

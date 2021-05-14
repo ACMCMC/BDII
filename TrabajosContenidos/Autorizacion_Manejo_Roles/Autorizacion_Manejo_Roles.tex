@@ -1,0 +1,108 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[spanish]{babel}
+\usepackage{listings}
+\usepackage[utf8]{inputenc}
+\usepackage{titling}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{fix-cm}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{calc}
+
+\usepackage{etoolbox}
+\patchcmd{\thebibliography}{\section*{\refname}}{}{}{}
+
+%%search -> (?:url=\{)(.*)(:?\})
+%%replace -> howpublished={\\url{$1}}
+\geometry{a4paper, left=4em, right=4em, top=0em, bottom=4em}
+
+\lstset{
+    frame=single,
+    breaklines=true,
+    numbers=none,
+    keywordstyle=\color{blue},
+    numbersep=15pt,
+    numberstyle=,
+    basicstyle=\linespread{1.0}\selectfont\ttfamily,
+    commentstyle=\color{gray},
+    stringstyle=\color{orange},
+    identifierstyle=\color{green!40!black},
+}
+
+\setlength{\parindent}{4em}
+%%\setlength{\parindent}{0em}
+\setlength{\parskip}{0.8em}
+    
+%%\renewcommand{\familydefault}{phv} %%Seleccionamos Helvetica
+    
+\lstdefinestyle{console}
+{
+    numbers=left,
+    backgroundcolor=\color{violet},
+    %%belowcaptionskip=1\baselineskip,
+    breaklines=true,
+    %%xleftmargin=\parindent,
+    %%showstringspaces=false,
+    basicstyle=\footnotesize\ttfamily,
+    %%keywordstyle=\bfseries\color{green!40!black},
+    %%commentstyle=\itshape\color{green},
+    %%identifierstyle=\color{blue},
+    %%stringstyle=\color{orange},
+    basicstyle=\scriptsize\color{white}\ttfamily,
+}
+
+\newcommand{\SQLObligatorio}[1]{\textcolor{blue}{\textbf{#1}}}
+
+\newcommand{\size}[2]{{\fontsize{#1}{0}\selectfont#2}}
+    
+\title{\size{15pt}{Autorización y manejo de roles} \vspace{-2ex}}
+\date{\vspace{-5ex}}
+%\author{\size{15pt}{Aldán Creo Mariño} \vspace{-5ex}}
+
+\bibliographystyle{plain}
+    
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\vspace{-10ex}
+
+La \textbf{autorización} es una buena forma de dar seguridad y fiabilidad a la base de datos. Las autorizaciones se gestionan usualmente mediante \textbf{roles}. En este documento, veremos los aspectos más básicos de los mismos, desde un punto de vista práctico.
+
+Las autorizaciones se gestionan con las instrucciones \texttt{GRANT} (conceder) y \texttt{REVOKE} (retirar):
+
+\begin{center}
+\begin{minipage}[c]{0,7\textwidth}
+\begin{lstlisting}[language=SQL]
+GRANT {SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER | ALL PRIVILEGES} ON nombreTabla TO nombreRol [WITH GRANT OPTION];
+\end{lstlisting}
+\begin{lstlisting}[language=SQL]
+REVOKE [GRANT OPTION FOR] {SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER | ALL PRIVILEGES} ON nombreTabla FROM nombreRol [CASCADE | RESTRICT];
+\end{lstlisting}
+\end{minipage}
+\end{center}
+
+En ellas, \texttt{SELECT}, \texttt{INSERT}, \texttt{UPDATE}, \texttt{DELETE}, \texttt{TRUNCATE}, \texttt{REFERENCES} y \texttt{TRIGGER} son el tipo de autorización que se puede otorgar o retirar. Los nombres son autodescriptivos, excepto los de \texttt{TRUNCATE} (se refiere a borrar una tabla por completo, es similar a \texttt{DELETE}), \texttt{TRIGGER} (se refiere al permiso de crear \texttt{trigger}s sobre una tabla) y \texttt{REFERENCES}.
+
+Este último afecta a las claves foráneas. Pensemos en una tabla \texttt{T2}, que tiene un atributo que referencia a otro de \texttt{T1}. Si la política de integridad fuese \texttt{RESTRICT}, entonces no podríamos borrar tuplas de \texttt{T1} sin borrar antes las afectadas en \texttt{T2}. El problema podría surgir con un usuario que tiene permiso para borrar tuplas en \texttt{T1}, y no en \texttt{T2} (se le denegaría el borrado, y no podría hacer nada). Por eso, es conveniente restringir la posibilidad de establecer relaciones de clave foránea, ya que pueden afectar a tablas aparentemente sin relación en la base de datos, y de esta forma limitar el acceso a otros usuarios. El privilegio \texttt{REFERENCES} regula esta posibilidad.
+
+El primer usuario que se crea en una base de datos, y que siempre debe estar presente, es el superusuario, también conocido como \textbf{DBA} (\textit{Database Administrator}). Este usuario posee todos los privilegios en la base de datos, y puede otorgárselos a quien desee. Normalmente, se los entregará a roles concretos. Los privilegios también se pueden otorgar a usuarios determinados, pero esto puede llevar a una gestión caótica de la base de datos posteriormente. Por ejemplo, en la ETSE, podrían dársele permisos individualmente a cada profesor para gestionar su cuenta del Campus Virtual, pero sería muy ineficiente. Es mejor crear un rol \texttt{profesor}, que sea otorgado a todos los profesores por igual.
+
+El uso de roles incrementa la seguridad y fiabilidad de la base de datos, ya que si un usuario, por definición, no puede realizar ciertas acciones, es imposible que pueda alterar o acceder a partes de la base de datos que no le queremos permitir. Además, también podría usarse como un mecanismo de control de acceso (no permitir que haya más de cien profesores conectados a la vez, por ejemplo). Por esto es importante definir una política de autorizaciones coherente y segura.
+
+Finalmente, es relevante comentar que las autorizaciones también se pueden otorgar y retirar en \texttt{view}s y \texttt{materialized view}s, y en columnas individuales. Además, se pueden establecer jerarquías de autorizaciones, con herencia de privilegios.
+
+\nocite{*}
+\bibliography{export}
+
+\end{document}

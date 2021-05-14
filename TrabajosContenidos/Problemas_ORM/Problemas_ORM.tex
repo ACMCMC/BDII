@@ -1,0 +1,84 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[spanish]{babel}
+\usepackage{listings}
+\usepackage[utf8]{inputenc}
+\usepackage{titling}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{fix-cm}
+\usepackage{tikz}
+
+\usepackage{etoolbox}
+\patchcmd{\thebibliography}{\section*{\refname}}{}{}{}
+
+%%search -> (?:url=\{)(.*)(:?\})
+%%replace -> howpublished={\\url{$1}}
+\geometry{a4paper, left=4em, right=4em, top=0em, bottom=4em}
+
+\lstset{
+    frame=single,
+    breaklines=true,
+    numbers=left,
+    keywordstyle=\color{blue},
+    numbersep=15pt,
+    numberstyle=,
+    basicstyle=\linespread{1.0}\selectfont\ttfamily,
+    commentstyle=\color{gray},
+    stringstyle=\color{orange},
+    identifierstyle=\color{green!40!black},
+}
+
+\setlength{\parindent}{4em}
+%%\setlength{\parindent}{0em}
+\setlength{\parskip}{0.8em}
+    
+%%\renewcommand{\familydefault}{phv} %%Seleccionamos Helvetica
+    
+\lstdefinestyle{console}
+{
+    numbers=left,
+    backgroundcolor=\color{violet},
+    %%belowcaptionskip=1\baselineskip,
+    breaklines=true,
+    %%xleftmargin=\parindent,
+    %%showstringspaces=false,
+    basicstyle=\footnotesize\ttfamily,
+    %%keywordstyle=\bfseries\color{green!40!black},
+    %%commentstyle=\itshape\color{green},
+    %%identifierstyle=\color{blue},
+    %%stringstyle=\color{orange},
+    basicstyle=\scriptsize\color{white}\ttfamily,
+}
+
+\newcommand{\SQLObligatorio}[1]{\textcolor{blue}{\textbf{#1}}}
+
+\newcommand{\size}[2]{{\fontsize{#1}{0}\selectfont#2}}
+    
+\title{\size{15pt}{Problemas de ORM} \vspace{-2ex}}
+\date{\vspace{-5ex}}
+%\author{\size{15pt}{Aldán Creo Mariño} \vspace{-5ex}}
+
+\bibliographystyle{plain}
+    
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\vspace{-10ex}
+
+\textbf{ORM} (\textit{Object-Relational Mapping}) es un mecanismo que permite que el lenguaje cliente de la base de datos (tomemos Java como ejemplo) establezca una relación de mapeo entre atributos de las clases definidas en el lenguaje, y atributos guardados en una base de datos relacional. En este documento, no voy a centrarme en explicar en qué se basa o cómo funciona (existen otros documentos al respecto), sino que me voy a centrar en comentar sus debilidades e inconvenientes.
+
+El problema principal de ORM es que hace que el programador tienda a centrarse únicamente en la parte de programación de la base de  lo normal es que yo tenga mi modelo de datos en la base de datos y el análisis del modelo de datos en la base de datos me de una estructura de modelo relacional y ahora cuando Ramos clases voy viendo como Mateo eso sobre ese modelo la forma correcta de trabajar es mucha gente lo que hace es me olvidó de la base de datos y pienso que el sistema de mapeado que me lo solucione de forma que cojo mis objetos y yo he creado mis clases yo creado programación y digo que directamente eso son las entidades de mi capa de bases de datos de modelos que suele hacer esto los modelos de datos subyacentes tengan duplicidades tengan esos que se dicho muchas veces que no pueda ver que un dato en una base de datos solo está en un sitio y si yo lo tengo lo tengo por relaciones por lo tanto ese tipo de cosas da lugar a a a base de datos bastante peor primero al análisis de datos sobre esos datos vapeo luego pues no pegando las clases que yo vaya yo vaya cómo evolucionará en el futuro esperemos ya más bases de datos o verdaderamente pura relacionales no lo sé no lo creo y yo creo que irán más por el tema o bien de mapeado o bien por el tema de bases objeto-relacionales es decir en las que al fin y al cabo es mapeado los dos casos uno digamos como una capa externa y otro ya dentro de la base de datos y por último hablaros pues muy brevemente dedos dos campos de aplicación actualmente lo que está en VO hoy en día lo que menos importa es almacenar sistemas el procesamiento de transacciones información hoy en día tenemos tanta información tanta imaginaros que nos podemos imaginar lo que por ejemplo un Google tiene sobre nuestras consultas importa es hacer negocio de negocios ser capaces de aquella organización en la que yo tengo una gran cantidad de datos esos datos me ayuden a que me toma decisiones no se apoyada por intuiciones sino que tenga un sofá y eso tiene una cosa muy importante que es el ámbito de la minería de datos importante de la minería de datos no es la capacidad de operar importante de la minería de datos es la capacidad de que puedas obtener resultados fácil de visualiza algo más el ámbito bancario decía es donde más aspectos que quiero para mi negocio me voy a hacer publicidad sobre un préstamo con unas terminadas condiciones pues se lo puedo hacer a todos mis clientes o puedo hacer aquellos clientes que minería de datos no sé que tenga las características un concesionario de coches a qué tipo de perfiles me gustan más determinados coches o que uso de determinadas herramientas de procesado hace determinados perfiles de gente y en función de sus comentarios en la red social por no decir todo lo que puedes intentar influir problemas básicamente es nación y otro procesal respuesta múltiple para todo era verdad que esté toque descubrir patrones de conocimiento es el Tik Tok y cuanto más interesantes son los patrones de conocimiento más difíciles son de descubrir también es cierto que son aquellos que te dan más capacidad de influir en el ámbito en el que estás influyendo y en la dirección en la que quieras 
+
+\nocite{*}
+\bibliography{export}
+
+\end{document}

@@ -1,0 +1,137 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[spanish]{babel}
+\usepackage{listings}
+\usepackage[utf8]{inputenc}
+\usepackage{titling}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{fix-cm}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{calc}
+
+\usepackage{etoolbox}
+\patchcmd{\thebibliography}{\section*{\refname}}{}{}{}
+
+%%search -> (?:url=\{)(.*)(:?\})
+%%replace -> howpublished={\\url{$1}}
+\geometry{a4paper, left=4em, right=4em, top=0em, bottom=4em}
+
+\lstset{
+    frame=single,
+    breaklines=true,
+    numbers=left,
+    keywordstyle=\color{blue},
+    numbersep=15pt,
+    numberstyle=,
+    basicstyle=\linespread{1.0}\selectfont\ttfamily,
+    commentstyle=\color{gray},
+    stringstyle=\color{orange},
+    identifierstyle=\color{green!40!black},
+}
+
+\setlength{\parindent}{4em}
+%%\setlength{\parindent}{0em}
+\setlength{\parskip}{0.8em}
+    
+%%\renewcommand{\familydefault}{phv} %%Seleccionamos Helvetica
+    
+\lstdefinestyle{console}
+{
+    numbers=left,
+    backgroundcolor=\color{violet},
+    %%belowcaptionskip=1\baselineskip,
+    breaklines=true,
+    %%xleftmargin=\parindent,
+    %%showstringspaces=false,
+    basicstyle=\footnotesize\ttfamily,
+    %%keywordstyle=\bfseries\color{green!40!black},
+    %%commentstyle=\itshape\color{green},
+    %%identifierstyle=\color{blue},
+    %%stringstyle=\color{orange},
+    basicstyle=\scriptsize\color{white}\ttfamily,
+}
+
+\newcommand{\SQLObligatorio}[1]{\textcolor{blue}{\textbf{#1}}}
+
+\newcommand{\size}[2]{{\fontsize{#1}{0}\selectfont#2}}
+    
+\title{\size{15pt}{Jerarquías de autorizaciones} \vspace{-2ex}}
+\date{\vspace{-5ex}}
+%\author{\size{15pt}{Aldán Creo Mariño} \vspace{-5ex}}
+
+\bibliographystyle{plain}
+    
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\vspace{-10ex}
+
+En este documento, veremos brevemente algunas cuestiones relevantes relativas a las \textbf{jerarquías de autorizaciones} en sistemas de bases de datos.
+
+En SQL, un rol que disponga de los permisos para otorgar determinado tipo de autorizaciones (por ejemplo, si soy un usuario con el rol $R2$ y mi rol me permite otorgar permisos \texttt{SELECT} en la tabla $T1$), puede hacerlo usando la cláusula \texttt{GRANT}, si se me permitó con \texttt{WITH GRANT OPTION}.
+
+Adicionalmente, se pueden establecer relaciones de herencia entre roles, indicando:
+
+\begin{center}
+\begin{minipage}[c]{0,7\textwidth}
+\begin{lstlisting}[language=SQL]
+GRANT rolPadre TO rolHijo;
+\end{lstlisting}
+\end{minipage}
+\end{center}
+
+\begin{figure}
+\begin{minipage}{.5\textwidth}
+    \centering
+    \begin{tikzpicture}[roundnode/.style={circle, draw=black!100, fill=gray!5, very thick, minimum size=7mm}]
+        
+        \node[roundnode] (R1) {DBA};
+        \node[roundnode, below=1 of R1] (R2) {R2};
+        \node[roundnode, below left=1 of R2] (R3) {R3};
+        \node[roundnode, below right=1 of R2] (R4) {R4};
+    
+        \draw[-to] (R1) -- node[right]{\texttt{SELECT ON T1}} (R2);
+        \draw[-to] (R2) -- node[above right]{\texttt{SELECT ON T1}} (R4);
+        \draw[-to] (R2) -- node[above left]{\texttt{SELECT ON T1}} (R3);
+    \end{tikzpicture}
+    \caption{Una estructura jerárquica de roles} \label{fig_1}
+\end{minipage}% This must go next to `\end{minipage}`
+\begin{minipage}{.5\textwidth}
+    \centering
+    \begin{tikzpicture}[roundnode/.style={circle, draw=black!100, fill=gray!5, very thick, minimum size=7mm}]
+        
+        \node[roundnode] (R1) {DBA};
+        \node[roundnode, below=1 of R1] (R2) {R2};
+        \node[roundnode, below left=2 of R2] (R3) {R3};
+        \node[roundnode, below right=2 of R2] (R4) {R4};
+    
+        \draw[-to] (R1) -- node[right]{\texttt{SELECT ON T1}} (R2);
+        \draw[-to] (R2) -- node[above right]{\texttt{SELECT ON T1}} (R4);
+        \draw[-to] (R2) -- node[above left]{\texttt{SELECT ON T1}} (R3);
+        \draw[-to] (R3) -- node[below]{\texttt{SELECT ON T1}} (R4);
+    \end{tikzpicture}
+    \caption{Una estructura de roles con un lazo} \label{fig_2}
+\end{minipage}
+\end{figure}
+
+De esta forma, podemos llegar a estructuras como el de la figura \ref{fig_1}. En ella, podemos observar una relación en la que el administrador de la base de datos (\textbf{DBA}) otorga una serie de permisos a R2. Es R2 el que le otorga los permisos, por su cuenta, a R3 y R4. En base a este modelo, podemos comprobar si un usuario dispone de un permiso concreto, si existe un camino de la raíz del árbol al nodo que queremos comprobar, ya que si el camino existe, entonces implica que se han dado las autorizaciones necesarias para que el usuario que estamos comprobando disponga del permiso que estamos comprobando.
+
+En la figura \ref{fig_2} existe un lazo. Esto no debería implicar problemas si utilizamos el algoritmo descrito para comprobar la disponibilidad de permisos, ya que si se eliminan los dos arcos que otorgan el permiso \texttt{SELECT ON T1} a R4, entonces no existirá una rama hasta la raíz del árbol. Algo relevante a comentar sobre este tipo de estructuras, pese a todo, es la revocación de permisos en cascada. Si R4 otorgase su autorización a otro rol R5, el hecho de que R3 revocase el permiso a R4 podría hacer que R5 perdiese su privilegio o no, dependiendo de la existencia de otras posibles ramas de autorización hacia R4 (en este caso, no lo perdería, ya que tenemos dos ramas en el árbol). Esto, como se puede observar, puede provocar un comportamiento imprevisible del sistema de permisos de la base de datos (permisos que no se revoquen cuando pensábamos que sí, y viceversa).
+
+Por tanto, es conveniente plantear políticas de autorización coherentes, para eliminar posibles comportamientos inesperados a la hora de gestionar las autorizaciones. Otra forma de restringir este tipo de comportamientos es especificar el parámetro \texttt{RESTRICT} a la hora de revocar los permisos. Así, de existir permisos que se revocarían en cascada, no se permite realizar la operación.
+
+\nocite{*}
+\bibliography{export}
+
+\end{document}

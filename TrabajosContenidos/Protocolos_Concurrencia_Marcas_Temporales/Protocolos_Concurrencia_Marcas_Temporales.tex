@@ -1,0 +1,110 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[spanish]{babel}
+\usepackage{listings}
+\usepackage[utf8]{inputenc}
+\usepackage{titling}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{fix-cm}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{calc}
+
+\usepackage{etoolbox}
+\patchcmd{\thebibliography}{\section*{\refname}}{}{}{}
+
+%%search -> (?:url=\{)(.*)(:?\})
+%%replace -> howpublished={\\url{$1}}
+\geometry{a4paper, left=4em, right=4em, top=0em, bottom=4em}
+
+\lstset{
+    frame=single,
+    breaklines=true,
+    numbers=left,
+    keywordstyle=\color{blue},
+    numbersep=15pt,
+    numberstyle=,
+    basicstyle=\linespread{1.0}\selectfont\ttfamily,
+    commentstyle=\color{gray},
+    stringstyle=\color{orange},
+    identifierstyle=\color{green!40!black},
+}
+
+\setlength{\parindent}{4em}
+%%\setlength{\parindent}{0em}
+\setlength{\parskip}{0.8em}
+    
+%%\renewcommand{\familydefault}{phv} %%Seleccionamos Helvetica
+    
+\lstdefinestyle{console}
+{
+    numbers=left,
+    backgroundcolor=\color{violet},
+    %%belowcaptionskip=1\baselineskip,
+    breaklines=true,
+    %%xleftmargin=\parindent,
+    %%showstringspaces=false,
+    basicstyle=\footnotesize\ttfamily,
+    %%keywordstyle=\bfseries\color{green!40!black},
+    %%commentstyle=\itshape\color{green},
+    %%identifierstyle=\color{blue},
+    %%stringstyle=\color{orange},
+    basicstyle=\scriptsize\color{white}\ttfamily,
+}
+
+\newcommand{\SQLObligatorio}[1]{\textcolor{blue}{\textbf{#1}}}
+
+\newcommand{\size}[2]{{\fontsize{#1}{0}\selectfont#2}}
+    
+\title{\size{15pt}{Protocolos de control de concurrencia basados en marcas temporales} \vspace{-2ex}}
+\date{\vspace{-5ex}}
+%\author{\size{15pt}{Aldán Creo Mariño} \vspace{-5ex}}
+
+\bibliographystyle{plain}
+    
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\vspace{-10ex}
+
+En la asignatura, hemos estudiado ampliamente el concepto de transacción, y cómo la concurrencia plantea retos a la hora de su procesamiento. En este documento, veremos un tipo de algoritmos que se basan en el uso de \textbf{marcas temporales} para asegurar la secuenciabilidad de un conjunto de transacciones que se ejecuten concurrentemente.
+
+Este tipo de algoritmos lo que hacen es asociar a cada transacción el momento en que se empieza a ejecutar. Por ejemplo, podemos tener dos transacciones tal que $TS(T1)=1$ y $TS(T2)=2$, donde $TS$ devuelve la marca temporal de inicio de la transacción (\textit{timestamp}). El valor de la marca temporal se puede obtener del reloj del sistema, o de un contador lógico que se incremente con cada transacción. La elección es irrelevante, siempre que garanticemos \ref{ecuacion}.
+
+\begin{equation}
+    \forall T1,T2 \{ previa(T1,T2) \rightarrow TS(T1) < TS(T2) \} 
+\label{ecuacion}
+\end{equation}
+
+Adicionalmente, a cada elemento de la base de datos, se le asocian dos marcas temporales: una de escritura ($TS\_W(E)$), y una de lectura ($TS\_R(E)$). Cada vez que se ejecuta una de las dos operaciones sobre el elemento, se actualiza su contador. De esta forma, se puede implementar un protocolo de control de concurrencia que funcione del siguiente modo:
+
+\begin{itemize}
+    \item Si la transacción $T_i$ ejecuta una operación de lectura sobre el elemento $E$, dependiendo de las marcas temporales:
+    \begin{itemize}
+        \item Si $TS(T_i) < TS\_W(E)$, entonces se impide la lectura, ya que el elemento ha sido escrito desde que $T_i$ comenzó a ejecutarse, por una transacción posterior. $T_i$ hace \textit{rollback}.
+        \item Si $TS(T_i) \geq TS\_W(E)$, entonces se permite la lectura, ya que $E$ no ha sido escrito por una transacción posterior.
+    \end{itemize}
+    \item Si la transacción $T_i$ ejecuta una operación de escritura sobre el elemento $E$, dependiendo de las marcas temporales:
+    \begin{itemize}
+        \item Si $TS(T_i) < TS\_W(E)$, entonces se impide la escritura, ya que el elemento ha sido escrito desde que $T_i$ comenzó a ejecutarse, por una transacción posterior. Es decir, estaríamos actualizando $E$ a un valor obsoleto. $T_i$ hace \textit{rollback}.
+        \item Si $TS(T_i) < TS\_R(E)$, entonces también se impide la escritura, ya que el elemento ha sido leído por una transacción posterior desde que $T_i$ comenzó a ejecutarse. Si actualizásemos su valor, la transacción que lo leyó habría trabajado con un valor obsoleto. Por tanto, la forma de asegurar la secuenciabilidad de las transacciones es abortar la operación. $T_i$ hace \textit{rollback}.
+        \item En otro caso, se permite la escritura, ya que ninguna otra transacción posterior ha hecho referencia al elemento.
+    \end{itemize}
+\end{itemize}
+
+Si $T_i$ se aborta, el sistema gestor de bases de datos puede reiniciarla posteriormente, confiando en que no provocará problemas de dependencias de datos. De esta forma, podemos \textbf{garantizar la secuenciabilidad} de cualquier conjunto de transacciones que se ejecute de forma concurrente en la base de datos. El problema de este protocolo podría ser que algunas transacciones sean víctimas de \textbf{inanición} (no consigan completarse a lo largo de muchos intentos).
+
+\nocite{*}
+\bibliography{export}
+
+\end{document}
